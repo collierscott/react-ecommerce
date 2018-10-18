@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Box, Card, Container, Heading, Image, Text} from 'gestalt';
+import {Box, Card, Container, Heading, Icon, Image, SearchField, Text} from 'gestalt';
 import {Link} from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
 import './App.css';
@@ -10,11 +10,11 @@ const strapi = new Strapi(apiUrl);
 class App extends Component {
 
   state = {
-    brands: []
+    brands: [],
+    searchTerm: ''
   };
 
   async componentDidMount() {
-
     try {
       const {data} = await strapi.request('POST', '/graphql', {
         data: {
@@ -35,11 +35,37 @@ class App extends Component {
       console.log(err)
     }
   }
+
+  handleChange = ({value}) => {
+    this.setState({
+      searchTerm: value
+    })
+  };
+
   render() {
-    const {brands} = this.state;
+    const {brands, searchTerm} = this.state;
     return (
       <Container>
-        {/* brands */}
+        <Box
+          display="flex"
+          justifyContent="center"
+          marginTop={4}
+        >
+          <SearchField
+            accessibilityLabel="Search Brands"
+            id="search"
+            onChange={this.handleChange}
+            placeholder="Search brands"
+          />
+          <Box margin={3}>
+            <Icon
+              icon="filter"
+              color={searchTerm ? 'orange' : 'gray'}
+              size={20}
+              accessibilityLabel="Filter"
+            />
+          </Box>
+        </Box>
         <Box
           display="flex"
           justifyContent="center"
@@ -51,19 +77,30 @@ class App extends Component {
           </Heading>
         </Box>
         <Box
+          dangerouslySetInlineStyle={{
+            __style: {
+              backgroundColor: "#d6c8ec"
+            }
+          }}
+          shape="rounded"
           wrap
           display="flex"
           justifyContent="around"
         >
         {brands && brands.map(brand => {
           return (
-            <Box key={brand.name} margin={2} width={200}>
+            <Box
+              paddingY={4}
+              key={brand.name}
+              margin={2}
+              width={200}>
               <Card
                 image={
                   <Box height={200} width={200}>
                     <Image alt="Brand"
                            naturalHeight={1}
                            naturalWidth={1}
+                           fit="cover"
                            src={`${apiUrl}${brand.image.url}`}/>
                   </Box>
                 }
