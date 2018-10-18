@@ -1,8 +1,8 @@
 {
   "connection": "default",
-  "collectionName": "",
+  "collectionName": "brew",
   "info": {
-    "name": "brand",
+    "name": "brew",
     "description": ""
   },
   "options": {
@@ -11,11 +11,13 @@
   "attributes": {
     "name": {
       "default": "",
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "description": {
       "default": "",
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "image": {
       "model": "file",
@@ -23,9 +25,14 @@
       "plugin": "upload",
       "required": false
     },
-    "brews": {
-      "collection": "brew",
-      "via": "brand"
+    "price": {
+      "default": "",
+      "type": "decimal",
+      "required": true
+    },
+    "brand": {
+      "model": "brand",
+      "via": "brews"
     }
   }
 }
