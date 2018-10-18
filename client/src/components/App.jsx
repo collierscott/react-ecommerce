@@ -42,8 +42,19 @@ class App extends Component {
     })
   };
 
+  filteredBrands = ({searchTerm, brands}) => {
+    if(searchTerm) {
+      return brands.filter(brand => {
+        return brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          brand.description.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    } else {
+      return brands;
+    }
+  };
+
   render() {
-    const {brands, searchTerm} = this.state;
+    const {searchTerm} = this.state;
     return (
       <Container>
         <Box
@@ -87,7 +98,7 @@ class App extends Component {
           display="flex"
           justifyContent="around"
         >
-        {brands && brands.map(brand => {
+        {this.filteredBrands(this.state).map(brand => {
           return (
             <Box
               paddingY={4}
