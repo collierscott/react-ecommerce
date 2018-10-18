@@ -13,7 +13,7 @@ const Navbar = () => {
 			padding={1}
 		>
 			<NavLink activeClassName="active" to="/signin">
-				<Text size="x1" color="white">Sign In</Text>
+				<Text size="xl" color="white">Sign In</Text>
 			</NavLink>
 			<NavLink activeClassName="active" exact to="/">
 				<Box display="flex" alignItems="center">
@@ -24,7 +24,7 @@ const Navbar = () => {
 				</Box>
 			</NavLink>
 			<NavLink activeClassName="active" to="/signout">
-				<Text size="x1" color="white">Sign Out</Text>
+				<Text size="xl" color="white">Sign Out</Text>
 			</NavLink>
 		</Box>
   )
