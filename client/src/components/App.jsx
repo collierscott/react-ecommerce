@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
-import {Box, Card, Container, Heading, Icon, Image, SearchField, Text} from 'gestalt';
 import {Link} from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
+import {Box, Card, Container, Heading,
+  Icon, Image, SearchField,
+  Spinner,
+  Text} from 'gestalt';
+import Loader from './Loader';
 import './App.css';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
 
 class App extends Component {
-
   state = {
     brands: [],
-    searchTerm: ''
+    searchTerm: '',
+    loadingBrands: true
   };
 
   async componentDidMount() {
@@ -30,9 +34,15 @@ class App extends Component {
           }`
         }
       });
-      this.setState({brands: data.brands});
+      this.setState({
+        brands: data.brands,
+        loadingBrands: false
+      });
     } catch(err) {
-      console.log(err)
+      console.log(err);
+      this.setState({
+        loadingBrands: false
+      });
     }
   }
 
@@ -54,7 +64,7 @@ class App extends Component {
   };
 
   render() {
-    const {searchTerm} = this.state;
+    const {searchTerm, loadingBrands} = this.state;
     return (
       <Container>
         <Box
@@ -67,6 +77,7 @@ class App extends Component {
             id="search"
             onChange={this.handleChange}
             placeholder="Search brands"
+            value={searchTerm}
           />
           <Box margin={3}>
             <Icon
@@ -133,6 +144,8 @@ class App extends Component {
           )
         })}
         </Box>
+        {/*<Spinner show={loadingBrands} accessibilityLabel="Loading Spinner"/>*/}
+         <Loader show={loadingBrands}/>
       </Container>
     );
   }
