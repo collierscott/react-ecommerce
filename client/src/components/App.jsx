@@ -51,6 +51,7 @@ class App extends Component {
           </Heading>
         </Box>
         <Box
+          wrap
           display="flex"
           justifyContent="around"
         >
