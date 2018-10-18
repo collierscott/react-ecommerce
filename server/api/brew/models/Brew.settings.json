@@ -1,0 +1,38 @@
+{
+  "connection": "default",
+  "collectionName": "brew",
+  "info": {
+    "name": "brew",
+    "description": ""
+  },
+  "options": {
+    "timestamps": true
+  },
+  "attributes": {
+    "name": {
+      "default": "",
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "default": "",
+      "type": "text",
+      "required": true
+    },
+    "image": {
+      "model": "file",
+      "via": "related",
+      "plugin": "upload",
+      "required": false
+    },
+    "price": {
+      "default": "",
+      "type": "decimal",
+      "required": true
+    },
+    "brand": {
+      "model": "brand",
+      "via": "brews"
+    }
+  }
+}
