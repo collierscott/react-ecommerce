@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
-import {Box, Heading, Text, Image, Card, Button, Mask} from 'gestalt';
+import {Box, Heading, Text, Image, Card, Button, Mask, IconButton} from 'gestalt';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
@@ -43,6 +43,35 @@ class Brews extends Component {
             console.log(e);
         }
     }
+
+    addToCart = brew => {
+      const alreadyInCart = this.state.cartItems.findIndex(item => item.name === brew.name);
+
+      if(alreadyInCart === -1) {
+        const updateItems = this.state.cartItems.concat({
+          ...brew,
+          quantity: 1
+        });
+        this.setState({
+          cartItems: updateItems
+        });
+      } else {
+        const updatedItems = [...this.state.cartItems];
+        updatedItems[alreadyInCart].quantity +=1;
+        this.setState({
+          cartItems: updatedItems
+        });
+      }
+    };
+
+  deleteItemFromCart = itemToDelete => {
+    const filtered = this.state.cartItems.filter(
+      item => item.name !== itemToDelete
+    );
+    this.setState({
+      cartItems: filtered,
+    })
+  };
 
     render() {
         const {brand, brews, cartItems} = this.state;
@@ -118,7 +147,11 @@ class Brews extends Component {
                                                 marginTop={2}
                                                 >
                                                 <Text bold size="xl">
-                                                    <Button color="blue" text="Add to Cart" />
+                                                    <Button
+                                                      color="blue"
+                                                      text="Add to Cart"
+                                                      onClick={() => this.addToCart(brew)}
+                                                    />
                                                 </Text>
                                             </Box>
                                         </Box>
@@ -147,6 +180,18 @@ class Brews extends Component {
                           >
                             {cartItems.length} {(cartItems.length > 1 || cartItems.length === 0) ? 'items' : 'item'} selected
                           </Text>
+                        {/* Cart items*/}
+                        {cartItems.map(item => (
+                          <Box key={item.name} display="flex" alignItems="center">
+                            <Text>{item.name} x {item.quantity} - {(item.quantity * item.price).toFixed(2)}</Text>
+                            <IconButton accessibilityLabel="delete item"
+                                  icon="cancel"
+                                  size="sm"
+                                  iconColor="red"
+                                        onClick={() => this.deleteItemFromCart(item.name)}
+                            />
+                          </Box>
+                        ))}
                         <Box display="flex" alignItems="center" justifyContent="center"
                              direction="column">
                           <Box margin={2}>
