@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
 import {Box, Card, Container, Heading,
-  Icon, Image, SearchField,
-  Spinner,
-  Text} from 'gestalt';
+  Icon, Image, SearchField, Text} from 'gestalt';
 import Loader from './Loader';
 import './App.css';
 

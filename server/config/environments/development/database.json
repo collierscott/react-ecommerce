@@ -10,7 +10,7 @@
         "port": "35413",
         "database": "brewhaus",
         "username": "scott",
-        "password": "mlaBurlh0rse#121212"
+        "password": "PassW0rd121212"
       },
       "options": {
         "authenticationDatabase": "brewhaus",
