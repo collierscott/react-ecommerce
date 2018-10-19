@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
 import {Box, Heading, Text, Image, Card, Button, Mask, IconButton} from 'gestalt';
-import {calculatePrice} from '../utils';
+import {calculatePrice, setCart, getCart} from '../utils';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
@@ -11,7 +11,7 @@ class Brews extends Component {
     state = {
        brews: [],
        brand: '',
-      cartItems: []
+      cartItems: getCart(),
     };
 
     async componentDidMount() {
@@ -49,19 +49,22 @@ class Brews extends Component {
       const alreadyInCart = this.state.cartItems.findIndex(item => item.name === brew.name);
 
       if(alreadyInCart === -1) {
-        const updateItems = this.state.cartItems.concat({
+        const updatedItems = this.state.cartItems.concat({
           ...brew,
           quantity: 1
         });
+        //Uses callback
         this.setState({
-          cartItems: updateItems
-        });
+          cartItems: updatedItems,
+        }, ()=> setCart(updatedItems));
       } else {
         const updatedItems = [...this.state.cartItems];
         updatedItems[alreadyInCart].quantity +=1;
+        //Uses callback
         this.setState({
           cartItems: updatedItems
-        });
+        }, ()=> setCart(updatedItems)
+          );
       }
     };
 
@@ -71,7 +74,7 @@ class Brews extends Component {
     );
     this.setState({
       cartItems: filtered,
-    })
+    }, ()=> setCart(filtered))
   };
 
     render() {
@@ -174,7 +177,7 @@ class Brews extends Component {
                            alignItems="center"
                            padding={2}
                       >
-                        <Heading align="center" size="md">Your Cart</Heading>
+                        <Heading align="center" size="sm">Your Cart</Heading>
                           <Text
                             color="gray"
                             italic
