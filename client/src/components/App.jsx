@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 import Strapi from 'strapi-sdk-javascript/build/main';
 import {Box, Card, Container, Heading,
-  Icon, Image, SearchField,
-  Text} from 'gestalt';
+  Icon, Image, SearchField, Text} from 'gestalt';
 import Loader from './Loader';
 import './App.css';
 
@@ -23,6 +22,7 @@ class App extends Component {
         data: {
           query: `query {
               brands{
+              _id
               name
               image {
                 name
@@ -112,7 +112,7 @@ class App extends Component {
           return (
             <Box
               paddingY={4}
-              key={brand.name}
+              key={brand._id}
               margin={2}
               width={200}>
               <Card
@@ -135,7 +135,7 @@ class App extends Component {
                   <Text bold size="xl">{brand.name}</Text>
                   <Text align="center">{brand.description}</Text>
                   <Text bold size="xl">
-                    <Link to={`/${brand.name}`}>See Brews</Link>
+                    <Link to={`/${brand._id}`}>See Brews</Link>
                   </Text>
                 </Box>
               </Card>
