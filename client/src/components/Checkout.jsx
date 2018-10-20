@@ -2,6 +2,7 @@ import React, {Fragment} from "react";
 import { Container, Box, Heading, TextField, Text } from "gestalt";
 import ToastMessage from "./ToastMessage";
 import {getCart, calculatePrice} from '../utils';
+import ConfirmationModal from './ConfirmationModal';
 
 class Checkout extends React.Component {
     state = {
@@ -11,7 +12,9 @@ class Checkout extends React.Component {
         confirmationEmailAddress: "",
         toast: false,
         toastMessage: "",
-        cartItems: []
+        cartItems: [],
+        modal: false,
+        orderProcessing: false
     };
 
     componentDidMount() {
@@ -32,6 +35,16 @@ class Checkout extends React.Component {
             this.showToast("Fill in all fields");
             return;
         }
+
+        this.setState({
+            modal: true
+        });
+    };
+
+    handleSubmitOrder = () => {
+        this.setState({
+            modal: false
+        });
     };
 
     isFormEmpty = ({ address, postalCode, city, confirmationEmailAddress }) => {
@@ -43,8 +56,12 @@ class Checkout extends React.Component {
         setTimeout(() => this.setState({ toast: false, toastMessage: "" }), 5000);
     };
 
+    closeModal = () => this.setState({
+        modal: false
+    });
+
     render() {
-        const { toast, toastMessage, cartItems } = this.state;
+        const {toast, toastMessage, cartItems, modal, orderProcessing} = this.state;
 
         return (
             <Container>
@@ -142,6 +159,12 @@ class Checkout extends React.Component {
                         <Text color="midnight">0 items in the cart.</Text>
                     }
                 </Box>
+                {modal && <ConfirmationModal
+                  orderProcessing={orderProcessing}
+                  cartItems={cartItems}
+                  closeModal={this.closeModal}
+                  handleSubmitOrder={this.handleSubmitOrder}
+                />}
                 <ToastMessage show={toast} message={toastMessage} />
             </Container>
         );
