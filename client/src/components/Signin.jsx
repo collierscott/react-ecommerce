@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import {Container, Box, Button, Heading, Text, TextField} from 'gestalt';
 import ToastMessage from './ToastMessage';
 import Strapi from 'strapi-sdk-javascript/build/main';
+import {setToken} from '../utils';
+
 const strapi = new Strapi('http://localhost:1337');
 
 class Signin extends Component {
@@ -33,10 +35,12 @@ class Signin extends Component {
 				loading: true
 			});
 			const response = await strapi.register(username, email, password);
+
 			this.setState({
             	loading: false
         	});
-			console.log(response);
+
+            setToken(response.jwt);
 			this.redirectUser('/');
 		} catch(e) {
             this.setState({
@@ -65,7 +69,7 @@ class Signin extends Component {
 	};
 
   render() {
-  	const {toast, toastMessage} = this.state;
+  	const {toast, toastMessage, loading} = this.state;
     return (
       <Container>
 				<Box
@@ -123,7 +127,7 @@ class Signin extends Component {
 								onChange={this.handleChange}
 							/>
 						</Box>
-							<Button inline text="Submit" color="blue" type="submit"/>
+							<Button disabled={loading} inline text="Submit" color="blue" type="submit"/>
 					</form>
 				</Box>
 
