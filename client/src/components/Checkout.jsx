@@ -1,10 +1,15 @@
 import React, {Fragment} from "react";
+import {withRouter} from 'react-router-dom';
 import { Container, Box, Heading, TextField, Text } from "gestalt";
 import {Elements, StripeProvider, CardElement, injectStripe} from 'react-stripe-elements';
 import ToastMessage from "./ToastMessage";
-import {getCart, calculatePrice} from '../utils';
+import {getCart, calculatePrice, clearCart, calculateAmount} from '../utils';
 import ConfirmationModal from './ConfirmationModal';
-const config = require('../.env');
+import Strapi from "strapi-sdk-javascript/build/main";
+import {STRIPE_KEY} from '../env';
+
+const apiUrl = process.env.API_URL || 'http://localhost:1337';
+const strapi = new Strapi(apiUrl);
 
 class _CheckoutForm extends React.Component {
     state = {
@@ -43,19 +48,47 @@ class _CheckoutForm extends React.Component {
         });
     };
 
-    handleSubmitOrder = () => {
+    handleSubmitOrder = async () => {
+        const {cartItems, city, address, postalCode} = this.state;
+        const amount = calculateAmount(cartItems);
         this.setState({
-            modal: false
+            orderProcessing: true
         });
+        try {
+            const response = await this.props.stripe.createToken();
+            const token = response.token.id;
+            await strapi.createEntry('orders', {
+                amount,
+                brews: cartItems,
+                city,
+                postalCode,
+                address,
+                token
+            });
+            this.setState({
+                modal: false,
+                orderProcessing: false
+            });
+            clearCart();
+            this.showToast('Your order has been submitted.', true);
+        } catch(error) {
+            this.setState({
+                modal: false,
+                orderProcessing: false
+            });
+            this.showToast('An error occurred while processing your order.', false);
+        }
     };
 
     isFormEmpty = ({ address, postalCode, city, confirmationEmailAddress }) => {
         return !address || !postalCode || !city || !confirmationEmailAddress;
     };
 
-    showToast = toastMessage => {
+    showToast = (toastMessage, redirect = false) => {
         this.setState({ toast: true, toastMessage });
-        setTimeout(() => this.setState({ toast: false, toastMessage: "" }), 5000);
+        setTimeout(() => this.setState({ toast: false, toastMessage: "" },
+            () => redirect && this.props.history.push('/')
+        ), 5000);
     };
 
     closeModal = () => this.setState({
@@ -64,7 +97,6 @@ class _CheckoutForm extends React.Component {
 
     render() {
         const {toast, toastMessage, cartItems, modal, orderProcessing} = this.state;
-
         return (
             <Container>
                 <Box
@@ -109,7 +141,8 @@ class _CheckoutForm extends React.Component {
                                 style={{
                                     display: "inlineBlock",
                                     textAlign: "center",
-                                    maxWidth: 450
+                                    maxWidth: 450,
+                                    width: "100%"
                                 }}
                                 onSubmit={this.handleConfirmOrder}
                             >
@@ -127,7 +160,7 @@ class _CheckoutForm extends React.Component {
                                 <Box marginBottom={2}>
                                     <TextField
                                         id="postalCode"
-                                        type="number"
+                                        type="text"
                                         name="postalCode"
                                         placeholder="Postal Code"
                                         onChange={this.handleChange}
@@ -177,16 +210,16 @@ class _CheckoutForm extends React.Component {
     }
 }
 
-const CheckoutForm = injectStripe(_CheckoutForm);
+const CheckoutForm = withRouter(injectStripe(_CheckoutForm));
 
 const Checkout = () => (
   <StripeProvider
-    apiKey="`${config.STRIPE_KEY}`"
+    apiKey={STRIPE_KEY}
   >
     <Elements>
       <CheckoutForm />
     </Elements>
   </StripeProvider>
-)
+);
 
 export default Checkout;

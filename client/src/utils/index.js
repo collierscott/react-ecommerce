@@ -8,6 +8,13 @@ export const calculatePrice = items => {
   }`
 };
 
+export const calculateAmount = items => {
+    return Number(
+        items.reduce((acc, item) => acc + item.quantity * item.price, 0)
+            .toFixed(2)
+    );
+};
+
 /* Cart */
 export const setCart = (value, cartKey = CART_KEY) => {
   if(localStorage) {
@@ -26,7 +33,7 @@ export const clearCart = (cartKey = CART_KEY) => {
     if(localStorage) {
         localStorage.removeItem(cartKey);
     }
-}
+};
 
 export const setToken = (value, tokenKey = TOKEN_KEY) => {
   if(localStorage) {
