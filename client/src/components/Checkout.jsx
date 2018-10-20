@@ -1,10 +1,12 @@
 import React, {Fragment} from "react";
 import { Container, Box, Heading, TextField, Text } from "gestalt";
+import {Elements, StripeProvider, CardElement, injectStripe} from 'react-stripe-elements';
 import ToastMessage from "./ToastMessage";
 import {getCart, calculatePrice} from '../utils';
 import ConfirmationModal from './ConfirmationModal';
+const config = require('../.env');
 
-class Checkout extends React.Component {
+class _CheckoutForm extends React.Component {
     state = {
         address: "",
         postalCode: "",
@@ -151,6 +153,10 @@ class Checkout extends React.Component {
                                         onChange={this.handleChange}
                                     />
                                 </Box>
+                                <CardElement
+                                  id="stripe__input"
+                                  onReady={input => input.focus()}
+                                />
                                 <button id="stripe__button" type="submit">
                                     Submit
                                 </button>
@@ -170,5 +176,17 @@ class Checkout extends React.Component {
         );
     }
 }
+
+const CheckoutForm = injectStripe(_CheckoutForm);
+
+const Checkout = () => (
+  <StripeProvider
+    apiKey="`${config.STRIPE_KEY}`"
+  >
+    <Elements>
+      <CheckoutForm />
+    </Elements>
+  </StripeProvider>
+)
 
 export default Checkout;
