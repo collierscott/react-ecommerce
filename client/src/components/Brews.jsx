@@ -22,10 +22,12 @@ class Brews extends Component {
                     query: `
                     query {
                       brand(id: "${this.props.match.params.brandId}") {
+                        _id
                         name
                         brews {
-                          name,
-                          description,
+                          _id
+                          name
+                          description
                           image {
                             url
                           }
@@ -46,7 +48,7 @@ class Brews extends Component {
     }
 
     addToCart = brew => {
-      const alreadyInCart = this.state.cartItems.findIndex(item => item.name === brew.name);
+      const alreadyInCart = this.state.cartItems.findIndex(item => item._id === brew._id);
 
       if(alreadyInCart === -1) {
         const updatedItems = this.state.cartItems.concat({
@@ -70,7 +72,7 @@ class Brews extends Component {
 
   deleteItemFromCart = itemToDelete => {
     const filtered = this.state.cartItems.filter(
-      item => item.name !== itemToDelete
+      item => item._id !== itemToDelete
     );
     this.setState({
       cartItems: filtered,
@@ -119,7 +121,7 @@ class Brews extends Component {
                             return (
                                 <Box
                                     paddingY={4}
-                                    key={brew.name}
+                                    key={brew._id}
                                     margin={2}
                                     width={210}>
                                     <Card
@@ -186,13 +188,13 @@ class Brews extends Component {
                           </Text>
                         {/* Cart items*/}
                         {cartItems.map(item => (
-                          <Box key={item.name} display="flex" alignItems="center">
+                          <Box key={item._id} display="flex" alignItems="center">
                             <Text>{item.name} x {item.quantity} - {(item.quantity * item.price).toFixed(2)}</Text>
                             <IconButton accessibilityLabel="delete item"
                                   icon="cancel"
                                   size="sm"
                                   iconColor="red"
-                                        onClick={() => this.deleteItemFromCart(item.name)}
+                                        onClick={() => this.deleteItemFromCart(item._id)}
                             />
                           </Box>
                         ))}

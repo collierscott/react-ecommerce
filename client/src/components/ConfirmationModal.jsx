@@ -49,7 +49,7 @@ const ConfirmationModal = ({
                     color={"lightWash"}
                 >
                     {cartItems.map(item => (
-                        <Box key={item.name} padding={1}>
+                        <Box key={item._id} padding={1}>
                             <Text color="midnight">
                                 {item.name} x {item.quantity} - ${item.quantity * item.price}
                             </Text>
