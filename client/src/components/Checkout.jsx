@@ -1,9 +1,17 @@
 import React, {Fragment} from "react";
+import {withRouter} from 'react-router-dom';
 import { Container, Box, Heading, TextField, Text } from "gestalt";
+import {Elements, StripeProvider, CardElement, injectStripe} from 'react-stripe-elements';
 import ToastMessage from "./ToastMessage";
-import {getCart, calculatePrice} from '../utils';
+import {getCart, calculatePrice, clearCart, calculateAmount} from '../utils';
+import ConfirmationModal from './ConfirmationModal';
+import Strapi from "strapi-sdk-javascript/build/main";
+import {STRIPE_KEY} from '../env';
 
-class Checkout extends React.Component {
+const apiUrl = process.env.API_URL || 'http://localhost:1337';
+const strapi = new Strapi(apiUrl);
+
+class _CheckoutForm extends React.Component {
     state = {
         address: "",
         postalCode: "",
@@ -11,7 +19,9 @@ class Checkout extends React.Component {
         confirmationEmailAddress: "",
         toast: false,
         toastMessage: "",
-        cartItems: []
+        cartItems: [],
+        modal: false,
+        orderProcessing: false
     };
 
     componentDidMount() {
@@ -32,20 +42,72 @@ class Checkout extends React.Component {
             this.showToast("Fill in all fields");
             return;
         }
+
+        this.setState({
+            modal: true
+        });
+    };
+
+    handleSubmitOrder = async () => {
+        const {cartItems, city, address, postalCode, confirmationEmailAddress} = this.state;
+        const amount = calculateAmount(cartItems);
+        this.setState({
+            orderProcessing: true
+        });
+        try {
+            const response = await this.props.stripe.createToken();
+            const token = response.token.id;
+            await strapi.createEntry('orders', {
+                amount,
+                brews: cartItems,
+                city,
+                postalCode,
+                address,
+                token
+            });
+
+            await strapi.request('POST', '/email', {
+                data: {
+                    to: confirmationEmailAddress,
+                    from: 'scott@onlinespaces.com',
+                    subject: `Order Confirmation - BrewHaus ${new Date(Date.now())}`,
+                    text: 'Your order has been processed.',
+                    html: '<strong>Expect your order to arrive soon!</strong>'
+                }
+            });
+
+            this.setState({
+                modal: false,
+                orderProcessing: false
+            });
+            clearCart();
+            this.showToast('Your order has been submitted.', true);
+        } catch(error) {
+            this.setState({
+                modal: false,
+                orderProcessing: false
+            });
+            this.showToast('An error occurred while processing your order.', false);
+        }
     };
 
     isFormEmpty = ({ address, postalCode, city, confirmationEmailAddress }) => {
         return !address || !postalCode || !city || !confirmationEmailAddress;
     };
 
-    showToast = toastMessage => {
+    showToast = (toastMessage, redirect = false) => {
         this.setState({ toast: true, toastMessage });
-        setTimeout(() => this.setState({ toast: false, toastMessage: "" }), 5000);
+        setTimeout(() => this.setState({ toast: false, toastMessage: "" },
+            () => redirect && this.props.history.push('/')
+        ), 5000);
     };
 
-    render() {
-        const { toast, toastMessage, cartItems } = this.state;
+    closeModal = () => this.setState({
+        modal: false
+    });
 
+    render() {
+        const {toast, toastMessage, cartItems, modal, orderProcessing} = this.state;
         return (
             <Container>
                 <Box
@@ -90,7 +152,8 @@ class Checkout extends React.Component {
                                 style={{
                                     display: "inlineBlock",
                                     textAlign: "center",
-                                    maxWidth: 450
+                                    maxWidth: 450,
+                                    width: "100%"
                                 }}
                                 onSubmit={this.handleConfirmOrder}
                             >
@@ -108,7 +171,7 @@ class Checkout extends React.Component {
                                 <Box marginBottom={2}>
                                     <TextField
                                         id="postalCode"
-                                        type="number"
+                                        type="text"
                                         name="postalCode"
                                         placeholder="Postal Code"
                                         onChange={this.handleChange}
@@ -134,6 +197,10 @@ class Checkout extends React.Component {
                                         onChange={this.handleChange}
                                     />
                                 </Box>
+                                <CardElement
+                                  id="stripe__input"
+                                  onReady={input => input.focus()}
+                                />
                                 <button id="stripe__button" type="submit">
                                     Submit
                                 </button>
@@ -142,10 +209,28 @@ class Checkout extends React.Component {
                         <Text color="midnight">0 items in the cart.</Text>
                     }
                 </Box>
+                {modal && <ConfirmationModal
+                  orderProcessing={orderProcessing}
+                  cartItems={cartItems}
+                  closeModal={this.closeModal}
+                  handleSubmitOrder={this.handleSubmitOrder}
+                />}
                 <ToastMessage show={toast} message={toastMessage} />
             </Container>
         );
     }
 }
+
+const CheckoutForm = withRouter(injectStripe(_CheckoutForm));
+
+const Checkout = () => (
+  <StripeProvider
+    apiKey={STRIPE_KEY}
+  >
+    <Elements>
+      <CheckoutForm />
+    </Elements>
+  </StripeProvider>
+);
 
 export default Checkout;

@@ -23,7 +23,9 @@
     "lodash": "4.x.x",
     "mongoose": "^5.3.4",
     "strapi": "^3.0.0-alpha.14.3",
-    "strapi-hook-mongoose": "3.0.0-alpha.14.3"
+    "strapi-email-sendgrid": "^3.0.0-alpha.14.3",
+    "strapi-hook-mongoose": "3.0.0-alpha.14.3",
+    "stripe": "^6.12.1"
   },
   "author": {
     "name": "webdeveloper",
