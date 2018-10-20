@@ -23,3 +23,24 @@ Admittedly, this documentation is lacking. Checkout [Strapi Documentation](https
 - In the client/src folder, rename ```env.example.js``` to ```env.js``` and enter your [Stripe](http:://www.stripe.com) API public key.
 - In client folder, run ```npm i``` then ```npm start```.
 - You can checkout [Strapi Documentation](https://strapi.io/documentation/3.x.x/) for more info.
+
+
+## Database
+### Content Types
+type: Brand
+name: string
+description: text
+relationship: Brand belongs to many Brews
+
+type: Brew
+name: string
+description: text 
+price:  number:decimal
+realtionship: Brand has many Brews
+
+type: orders
+address: string
+postalCode: string
+city: string
+brews: JSON
+amount: number:decimal
