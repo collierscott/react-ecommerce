@@ -138,7 +138,7 @@ class _CheckoutForm extends React.Component {
                                 </Text>
                                 <Box padding={2}>
                                     {cartItems.map(item => (
-                                        <Box key={item.name} padding={1}>
+                                        <Box key={item._id} padding={1}>
                                             <Text color="midnight">
                                                 {item.name} x {item.quantity} - ${item.quantity * item.price}
                                             </Text>
