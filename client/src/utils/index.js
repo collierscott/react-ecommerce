@@ -22,15 +22,27 @@ export const getCart = (cartKey = CART_KEY) => {
   return [];
 };
 
+export const clearCart = (cartKey = CART_KEY) => {
+    if(localStorage) {
+        localStorage.removeItem(cartKey);
+    }
+}
+
 export const setToken = (value, tokenKey = TOKEN_KEY) => {
   if(localStorage) {
       localStorage.setItem(tokenKey, JSON.stringify(value));
   }
 };
 
-export const getToekn = (tokenKey = TOKEN_KEY) => {
+export const getToken = (tokenKey = TOKEN_KEY) => {
     if(localStorage && localStorage.getItem(tokenKey)) {
         return JSON.parse(localStorage.getItem(tokenKey));
     }
-    return [];
+    return null;
+};
+
+export const clearToken = (tokenKey = TOKEN_KEY) => {
+  if(localStorage) {
+      localStorage.removeItem(tokenKey);
+  }
 };
