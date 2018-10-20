@@ -9,7 +9,6 @@ const strapi = new Strapi('http://localhost:1337');
 class Signin extends Component {
 	state = {
 		username: '',
-		email: '',
 		password: '',
 		toast: false,
 		toastMessage: '',
@@ -29,12 +28,12 @@ class Signin extends Component {
 			this.showToast('Fill in all fields');
 			return;
 		}
-        const {username, email, password} = this.state;
+        const {username, password} = this.state;
 		try {
 			this.setState({
 				loading: true
 			});
-			const response = await strapi.register(username, email, password);
+			const response = await strapi.login(username, password);
 
 			this.setState({
             	loading: false
@@ -64,8 +63,8 @@ class Signin extends Component {
 		}), 5000);
 	};
 
-	isFormEmpty = ({username, email, password}) => {
-		return !username || !email || !password;
+	isFormEmpty = ({username, password}) => {
+		return !username || !password;
 	};
 
   render() {
@@ -75,7 +74,7 @@ class Signin extends Component {
 				<Box
 					dangerouslySetInlineStyle={{
 						__style: {
-							backgroundColor: '#ebe2da'
+							backgroundColor: '#e6e6e6'
 						}
 					}}
 					margin={4}
@@ -97,8 +96,8 @@ class Signin extends Component {
 							direction="column"
 							alignItems="center"
 						>
-							<Heading color="midnight">Let's get started</Heading>
-							<Text color="orchid">Sign up to order some brews</Text>
+							<Heading color="midnight">Sign In</Heading>
+							<Text color="orchid">Sign in to order some brews</Text>
 						</Box>
 						<Box marginBottom={2}>
 							<TextField
@@ -106,15 +105,6 @@ class Signin extends Component {
 								name="username"
 								type="text"
 								placeholder="Username"
-								onChange={this.handleChange}
-							/>
-						</Box>
-						<Box marginBottom={2}>
-							<TextField
-								id="email"
-								name="email"
-								type="email"
-								placeholder="Email"
 								onChange={this.handleChange}
 							/>
 						</Box>
